@@ -1,0 +1,41 @@
+Generation (DF-GEN)
+
+DF-GEN-001: Unique value generation failed after max attempts.
+DF-GEN-002: Field configuration is invalid.
+DF-GEN-003: Record count exceeds 10,000.
+DF-GEN-004: No fields selected for generation.
+DF-GEN-005: Data generation initialization failed.
+DF-GEN-006: Gender percentages do not total 100%.
+DF-GEN-007: Invalid age range (min >= max).
+Export (DF-EXP)
+
+DF-EXP-001: SQL export failed.
+DF-EXP-002: CSV export failed.
+DF-EXP-003: PDF export failed.
+DF-EXP-004: TXT export failed.
+DF-EXP-005: No data available to export.
+DF-EXP-006: No export format selected.
+DF-EXP-007: Filename contains invalid characters.
+DF-EXP-008: Export file size is too large.
+Validation (DF-VAL)
+
+DF-VAL-001: Invalid field name.
+DF-VAL-002: Duplicate field name.
+DF-VAL-003: Invalid custom pattern.
+DF-VAL-004: Invalid numeric range.
+DF-VAL-005: Invalid string length.
+System (DF-SYS)
+
+DF-SYS-001: Insufficient disk space.
+DF-SYS-002: Permission denied.
+DF-SYS-003: Out of memory.
+DF-SYS-004: File already exists.
+DF-SYS-005: Application crash detected.
+DF-SYS-006: Configuration file corrupted.
+Database (DF-DB)
+
+DF-DB-001: Database connection failed.
+DF-DB-002: Database query failed.
+Network (DF-NET)
+
+DF-NET-001: Update check failed.
