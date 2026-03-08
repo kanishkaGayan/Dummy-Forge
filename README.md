@@ -2,8 +2,17 @@
 
 Dummy Forge is a desktop app for generating realistic dummy data for educational and development use. Configure fields, demographics, locations, generate up to 10,000 records, and export to multiple formats.
 
+## Release 1.1.0 Highlights
+- Added Query Studio with an in-app SQL practice console
+- Improved SQL diagnostics and autocomplete suggestions
+- Fixed country dial-code generation for single/specific/random country modes
+- Added sticky tab navigation and dark/light theme toggle
+- Refined dark mode contrast and readability
+
 ## Features
 - Generate up to 10,000 records per run
+- Query Studio for SQL practice with autocomplete, diagnostics, and pagination
+- Dark/Light theme toggle for better readability
 - Predefined fields:
 	- Personal: first name, last name, full name, gender, age, date of birth
 	- Contact: email (unique), phone, mobile, landline
@@ -56,6 +65,25 @@ npm run dev
 ```bash
 npm run build
 ```
+
+### Package distributables
+
+Build Linux distributables (`AppImage`, `snap`, `deb`):
+```bash
+npm run package:linux
+```
+
+Build Windows distributable (`.exe` via NSIS):
+```bash
+npm run package:win
+```
+
+Build both Windows and Linux targets:
+```bash
+npm run package:all
+```
+
+Output artifacts are generated in the `release/` directory.
 
 ### Lint
 ```bash
