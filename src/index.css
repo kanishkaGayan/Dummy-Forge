@@ -40,6 +40,16 @@ body {
   border-color: #3b4961 !important;
 }
 
+.dark .border,
+.dark .border-gray-200,
+.dark .border-gray-300,
+.dark .border-r,
+.dark .border-t,
+.dark .border-b,
+.dark .border-l {
+  border-color: #334155 !important;
+}
+
 .dark .text-slate-900 {
   color: #e2e8f0 !important;
 }
@@ -63,6 +73,11 @@ body {
   background-color: #141f31 !important;
   color: #d8e1ee !important;
   border-color: #3b4961 !important;
+}
+
+.dark .hover\:bg-slate-50:hover,
+.dark .hover\:bg-blue-50:hover {
+  background-color: transparent !important;
 }
 
 * {
