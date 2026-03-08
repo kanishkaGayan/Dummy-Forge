@@ -26,16 +26,19 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 
 export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
   return (
-    <div className="min-h-screen bg-slate-100">
-      <header className="border-b bg-white px-8 py-6">
+    <div className="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-900 dark:text-slate-200">
+      <header className="border-b border-slate-200 bg-white px-8 py-6 dark:border-slate-800 dark:bg-slate-900">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={appIcon} alt="Dummy Forge" className="h-10 w-10 rounded" />
-            <h1 className="text-2xl font-bold">Dummy Forge</h1>
+            <div className="flex flex-col">
+              <h1 className="text-2xl font-bold">Dummy Forge</h1>
+              <p className="text-xs leading-tight text-slate-500 dark:text-slate-400">Generate realistic dummy data for education and development.</p>
+            </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-300"
+            className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
           >
             Back
           </button>
@@ -44,27 +47,27 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
 
       <main className="mx-auto max-w-6xl space-y-8 px-8 py-8">
         {/* About Section */}
-        <section className="rounded-lg bg-white p-8 shadow">
-          <h2 className="mb-4 text-2xl font-bold text-slate-900">About Dummy Forge</h2>
-          <p className="mb-4 text-slate-700">
+        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">About Dummy Forge</h2>
+          <p className="mb-4 text-slate-700 dark:text-slate-300">
             Dummy Forge is a powerful tool designed to generate realistic dummy data for educational, testing, and development purposes. Whether you're building a database application, testing data pipelines, or learning about data management, Dummy Forge provides customizable, synthetic data that meets your specific needs.
           </p>
           <div className="grid gap-6 md:grid-cols-3">
-            <div className="rounded-md bg-blue-50 p-4">
-              <h3 className="mb-2 font-semibold text-blue-900">Customizable Fields</h3>
-              <p className="text-sm text-blue-800">
+            <div className="rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30">
+              <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-300">Customizable Fields</h3>
+              <p className="text-sm text-blue-800 dark:text-blue-200">
                 Choose from 30+ predefined field types or create custom fields with specific patterns and configurations.
               </p>
             </div>
-            <div className="rounded-md bg-green-50 p-4">
-              <h3 className="mb-2 font-semibold text-green-900">Multiple Export Formats</h3>
-              <p className="text-sm text-green-800">
+            <div className="rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-900/60 dark:bg-green-950/30">
+              <h3 className="mb-2 font-semibold text-green-900 dark:text-green-300">Multiple Export Formats</h3>
+              <p className="text-sm text-green-800 dark:text-green-200">
                 Export your generated data to CSV, SQL, PDF, TXT, and more formats with a single click.
               </p>
             </div>
-            <div className="rounded-md bg-purple-50 p-4">
-              <h3 className="mb-2 font-semibold text-purple-900">Global Data Support</h3>
-              <p className="text-sm text-purple-800">
+            <div className="rounded-md border border-purple-200 bg-purple-50 p-4 dark:border-purple-900/60 dark:bg-purple-950/30">
+              <h3 className="mb-2 font-semibold text-purple-900 dark:text-purple-300">Global Data Support</h3>
+              <p className="text-sm text-purple-800 dark:text-purple-200">
                 Generate realistic data for 195+ countries with localized phone numbers and addresses.
               </p>
             </div>
@@ -72,12 +75,12 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
         </section>
 
         {/* Developer Section */}
-        <section className="rounded-lg bg-white p-8 shadow">
-          <h2 className="mb-6 text-2xl font-bold text-slate-900">About the Developer</h2>
+        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-6 text-2xl font-bold text-slate-900 dark:text-slate-100">About the Developer</h2>
           <div className="flex flex-col gap-6 md:flex-row">
             <div className="flex-1">
-              <h3 className="mb-2 text-xl font-semibold text-slate-900">Kanishka Meddegoda</h3>
-              <p className="mb-4 text-slate-700">
+              <h3 className="mb-2 text-xl font-semibold text-slate-900 dark:text-slate-100">Kanishka Meddegoda</h3>
+              <p className="mb-4 text-slate-700 dark:text-slate-300">
                 Business Analyst passionate about translating business needs into practical, data-driven solutions. Specializing in requirements analysis, process improvement, and bridging the gap between stakeholders and technology
               </p>
               <div className="space-y-3">
@@ -129,23 +132,23 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
         </section>
 
         {/* License Section */}
-        <section className="rounded-lg bg-white p-8 shadow">
-          <h2 className="mb-4 text-2xl font-bold text-slate-900">License & Terms</h2>
-          <div className="rounded-md bg-yellow-50 p-4 mb-4 border border-yellow-200">
-            <p className="text-sm font-semibold text-yellow-900">
+        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">License & Terms</h2>
+          <div className="rounded-md bg-yellow-50 p-4 mb-4 border border-yellow-200 dark:border-yellow-900/70 dark:bg-yellow-950/40">
+            <p className="text-sm font-semibold text-yellow-900 dark:text-yellow-200">
               ⚠️ IMPORTANT: This tool generates FICTIONAL data for educational purposes only. All data is randomly generated and does not represent real people or entities.
             </p>
           </div>
-          <pre className="whitespace-pre-wrap rounded-md bg-slate-50 p-4 text-xs text-slate-700 overflow-auto max-h-96 border border-slate-200">
+          <pre className="whitespace-pre-wrap rounded-md bg-slate-50 p-4 text-xs text-slate-700 overflow-auto max-h-96 border border-slate-200 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
             {licenseText}
           </pre>
         </section>
 
         {/* Features Section */}
-        <section className="rounded-lg bg-white p-8 shadow">
-          <h2 className="mb-4 text-2xl font-bold text-slate-900">Key Features</h2>
+        <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <h2 className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">Key Features</h2>
           <div className="grid gap-4 md:grid-cols-2">
-            <ul className="space-y-2 text-slate-700">
+            <ul className="space-y-2 text-slate-700 dark:text-slate-300">
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
                 <span>30+ predefined field types (names, emails, phone numbers, etc.)</span>
@@ -163,7 +166,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
                 <span>Multi-country phone number generation with correct dial codes</span>
               </li>
             </ul>
-            <ul className="space-y-2 text-slate-700">
+            <ul className="space-y-2 text-slate-700 dark:text-slate-300">
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
                 <span>Unique field enforcement for emails and IDs</span>
@@ -185,8 +188,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
         </section>
       </main>
 
-      <footer className="border-t bg-white py-6 text-center text-sm text-slate-600 mt-8">
-        <p>© 2026 Dummy Forge. All rights reserved. | Made by <a href="https://kanishka.dev" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline">Kanishka Meddegoda</a></p>
+      <footer className="border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-600 mt-8 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
+        <p>© 2026 Dummy Forge. All rights reserved. | Made by <a href="https://kanishka.dev" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300">Kanishka Meddegoda</a></p>
       </footer>
     </div>
   );

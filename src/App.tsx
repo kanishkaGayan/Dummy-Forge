@@ -15,10 +15,15 @@ import { FieldSelector } from './components/FieldSelector';
 import { LicenseAgreement } from './components/LicenseAgreement';
 import { AboutPage } from './components/AboutPage';
 import { ErrorDialog } from './components/ErrorHandler';
+import { QueryEditor } from './components/QueryEditor';
+import UpdateNotification from './components/UpdateNotification';
+import { Database, Moon, Sun, TerminalSquare } from 'lucide-react';
 import { ExportSelection } from './types/exports';
 import { DemographicsConfig, FieldConfig, GenerationConfig, LocationConfig } from './types/schema';
 import appIcon from './icons/icon.png';
 import { createError, DummyForgeError } from './lib/errors/ErrorCodes';
+
+type TabType = 'generator' | 'query';
 
 const defaultDemographics: DemographicsConfig = {
   malePercentage: 50,
@@ -29,6 +34,8 @@ const defaultDemographics: DemographicsConfig = {
 const defaultLocation: LocationConfig = {
   mode: 'random'
 };
+
+const THEME_KEY = 'dummyforge_theme';
 
 type SelectableField = FieldConfig & { selected: boolean };
 
@@ -58,6 +65,8 @@ const LICENSE_KEY = 'dummyforge_license_accepted';
 const App: React.FC = () => {
   const [licenseOpen, setLicenseOpen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [activeTab, setActiveTab] = useState<TabType>('generator');
   const [fields, setFields] = useState<SelectableField[]>(predefinedFields);
   const [customFields, setCustomFields] = useState<FieldConfig[]>([]);
   const [editingField, setEditingField] = useState<FieldConfig | null>(null);
@@ -75,7 +84,17 @@ const App: React.FC = () => {
   useEffect(() => {
     const accepted = localStorage.getItem(LICENSE_KEY) === 'true';
     setLicenseOpen(!accepted);
+
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    const initialTheme = savedTheme === 'dark' ? 'dark' : 'light';
+    setTheme(initialTheme);
+    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(THEME_KEY, theme);
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   useEffect(() => {
     if (editingField && editFormRef.current) {
@@ -202,8 +221,9 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-200">
       {error && <ErrorDialog error={error} onClose={() => setError(null)} />}
+      <UpdateNotification />
       {showAbout ? (
         <AboutPage onClose={() => setShowAbout(false)} />
       ) : (
@@ -220,23 +240,70 @@ const App: React.FC = () => {
             }}
           />
 
-          <header className="border-b bg-white px-8 py-6">
+          <header className="border-b border-slate-200 bg-white px-8 py-5 dark:border-slate-800 dark:bg-slate-900">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <img src={appIcon} alt="Dummy Forge" className="h-10 w-10 rounded" />
-                <h1 className="text-2xl font-bold">Dummy Forge</h1>
+                <div className="flex flex-col">
+                  <h1 className="text-2xl font-bold tracking-tight">Dummy Forge</h1>
+                  <p className="text-xs leading-tight text-slate-500 dark:text-slate-400">Generate realistic dummy data for education and development.</p>
+                </div>
               </div>
-              <button
-                onClick={() => setShowAbout(true)}
-                className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium hover:bg-slate-300"
-              >
-                About
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setTheme((prev) => (prev === 'light' ? 'dark' : 'light'))}
+                  className="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+                  aria-label="Toggle theme"
+                >
+                  <span className="inline-flex items-center gap-2">
+                    {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+                    {theme === 'light' ? 'Dark' : 'Light'}
+                  </span>
+                </button>
+                <button
+                  onClick={() => setShowAbout(true)}
+                  className="rounded-md bg-slate-200 px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
+                >
+                  About
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-slate-600">Generate realistic dummy data for education and development.</p>
           </header>
 
+          <div className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 px-8 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-900/95">
+            <div className="flex gap-2 border-b border-transparent py-1">
+              <button
+                onClick={() => setActiveTab('generator')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'generator'
+                    ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                }`}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <Database className="h-4 w-4" />
+                  Data Generator
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('query')}
+                className={`px-4 py-2 text-sm font-medium transition-colors ${
+                  activeTab === 'query'
+                    ? 'border-b-2 border-blue-600 text-blue-600 dark:text-blue-400'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'
+                }`}
+              >
+                <span className="inline-flex items-center gap-2">
+                  <TerminalSquare className="h-4 w-4" />
+                  Query Studio
+                </span>
+              </button>
+            </div>
+          </div>
+
           <main className="mx-auto max-w-6xl space-y-6 px-8 py-6">
+            {activeTab === 'generator' ? (
+              <>
             <FieldSelector
               fields={fields}
               onToggle={handleToggleField}
@@ -297,14 +364,14 @@ const App: React.FC = () => {
                 )}
               </button>
               <button
-                className="rounded border border-slate-300 bg-white px-4 py-2 text-sm"
+                className="rounded border border-slate-300 bg-white px-4 py-2 text-sm transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700"
                 onClick={handleExport}
                 disabled={data.length === 0}
               >
                 Export Selected Formats
               </button>
               <button
-                className="rounded border border-red-300 bg-white px-4 py-2 text-sm text-red-600"
+                className="rounded border border-red-300 bg-white px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 dark:border-red-700 dark:bg-slate-800 dark:text-red-400 dark:hover:bg-red-950/30"
                 onClick={() => setShowClearConfirm(true)}
                 disabled={data.length === 0}
               >
@@ -330,17 +397,37 @@ const App: React.FC = () => {
               </div>
             )}
 
-            <DataPreview data={data} />
+            {data.length > 0 && <DataPreview data={data} />}
+              </>
+            ) : (
+              <>
+                <QueryEditor data={data} />
+                {data.length === 0 && (
+                  <div className="rounded-lg border border-slate-200 bg-slate-50 p-6 text-center dark:border-slate-700 dark:bg-slate-800/60">
+                    <h3 className="mb-2 font-semibold text-slate-700 dark:text-slate-100">No data available</h3>
+                    <p className="text-sm text-slate-600 mb-4 dark:text-slate-300">
+                      Generate some data in the <strong>Data Generator</strong> tab first, then come back here to query it.
+                    </p>
+                    <button
+                      onClick={() => setActiveTab('generator')}
+                      className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+                    >
+                      Go to Generator
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
           </main>
 
-          <footer className="mt-8 border-t bg-white py-6 text-center text-sm text-slate-600">
+          <footer className="mt-8 border-t border-slate-200 bg-white py-6 text-center text-sm text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
             <p>
               © 2026 Dummy Forge. All rights reserved. | Made by{' '}
               <a
                 href="https://kanishka.dev"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-blue-600 hover:text-blue-800 hover:underline"
+                className="text-blue-600 hover:text-blue-800 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
               >
                 Kanishka Meddegoda
               </a>

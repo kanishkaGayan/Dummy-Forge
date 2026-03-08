@@ -7,6 +7,8 @@ interface DataPreviewProps {
 
 export const DataPreview: React.FC<DataPreviewProps> = ({ data, limit = 100 }) => {
   const [page, setPage] = useState(1);
+  const [sortColumn, setSortColumn] = useState<string | null>(null);
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
 
 
   useEffect(() => {
@@ -19,9 +21,39 @@ export const DataPreview: React.FC<DataPreviewProps> = ({ data, limit = 100 }) =
 
   const rows = useMemo(() => {
     if (data.length === 0) return [];
+    const sortedRows = [...data];
+
+    if (sortColumn) {
+      sortedRows.sort((left, right) => {
+        const leftValue = left[sortColumn];
+        const rightValue = right[sortColumn];
+
+        if (leftValue === rightValue) return 0;
+        if (leftValue == null) return sortDirection === 'asc' ? -1 : 1;
+        if (rightValue == null) return sortDirection === 'asc' ? 1 : -1;
+
+        if (typeof leftValue === 'number' && typeof rightValue === 'number') {
+          return sortDirection === 'asc' ? leftValue - rightValue : rightValue - leftValue;
+        }
+
+        const comparison = String(leftValue).localeCompare(String(rightValue));
+        return sortDirection === 'asc' ? comparison : -comparison;
+      });
+    }
+
     const start = (safePage - 1) * limit;
-    return data.slice(start, start + limit);
-  }, [data, limit, safePage]);
+    return sortedRows.slice(start, start + limit);
+  }, [data, limit, safePage, sortColumn, sortDirection]);
+
+  const handleSort = (column: string) => {
+    if (sortColumn === column) {
+      setSortDirection((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+      return;
+    }
+
+    setSortColumn(column);
+    setSortDirection('asc');
+  };
 
   if (data.length === 0) {
     return (
@@ -32,7 +64,7 @@ export const DataPreview: React.FC<DataPreviewProps> = ({ data, limit = 100 }) =
   }
 
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm">
+    <div className="rounded-lg border bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold text-slate-700">
           Preview ({Math.min(limit, data.length)} rows)
@@ -63,21 +95,31 @@ export const DataPreview: React.FC<DataPreviewProps> = ({ data, limit = 100 }) =
             <tr>
               {columns.map((col) => (
                 <th key={col} className="border px-2 py-1 text-left font-semibold">
-                  {col}
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 transition-colors duration-150 hover:text-blue-600"
+                    onClick={() => handleSort(col)}
+                  >
+                    {col}
+                    {sortColumn === col ? (sortDirection === 'asc' ? '↑' : '↓') : '↕'}
+                  </button>
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
             {rows.map((row, idx) => (
-              <tr key={idx} className={idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'}>
+              <tr
+                key={`${idx}-${sortColumn ?? 'none'}-${sortDirection}`}
+                className={`${idx % 2 === 0 ? 'bg-white' : 'bg-slate-50'} transition-colors duration-200 hover:bg-blue-50`}
+              >
                 {columns.map((col) => {
                   const normalized = col.toLowerCase();
                   const shouldWrap = normalized.includes('email') || normalized.includes('address');
                   return (
                     <td
                       key={col}
-                      className={`border px-2 py-1 ${shouldWrap ? 'whitespace-normal break-words' : 'whitespace-nowrap'}`}
+                      className={`border px-2 py-1 transition-colors duration-150 ${shouldWrap ? 'whitespace-normal break-words' : 'whitespace-nowrap'}`}
                     >
                       {String(row[col])}
                     </td>

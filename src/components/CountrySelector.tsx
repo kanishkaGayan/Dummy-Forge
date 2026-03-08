@@ -11,6 +11,12 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
   const [specificSearch, setSpecificSearch] = useState('');
   const [singleSearch, setSingleSearch] = useState('');
 
+  const selectedSingleCountryCode = useMemo(() => {
+    const code = (value.singleCountry ?? '').toUpperCase();
+    const isValid = countries.some((country) => country.code === code);
+    return isValid ? code : 'US';
+  }, [value.singleCountry]);
+
   const filteredSpecific = useMemo(() => {
     const query = specificSearch.trim().toLowerCase();
     if (!query) return countries;
@@ -21,14 +27,26 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
 
   const filteredSingle = useMemo(() => {
     const query = singleSearch.trim().toLowerCase();
-    if (!query) return countries;
-    return countries.filter((country) =>
-      `${country.name} ${country.code}`.toLowerCase().includes(query)
-    );
-  }, [singleSearch]);
+    const matched = query
+      ? countries.filter((country) =>
+          `${country.name} ${country.code}`.toLowerCase().includes(query)
+        )
+      : countries;
+
+    const selectedCountry = countries.find((country) => country.code === selectedSingleCountryCode);
+    if (selectedCountry && !matched.some((country) => country.code === selectedSingleCountryCode)) {
+      return [selectedCountry, ...matched];
+    }
+
+    return matched;
+  }, [singleSearch, selectedSingleCountryCode]);
+
+  const handleSingleCountryChange = (countryCode: string) => {
+    onChange({ mode: 'single', singleCountry: countryCode.toUpperCase() });
+  };
 
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm">
+    <div className="rounded-lg border bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
       <h3 className="mb-3 text-sm font-semibold text-slate-700">Country & Location Settings</h3>
       <div className="space-y-3">
         <label className="flex items-center gap-2 text-sm">
@@ -62,7 +80,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
                   <button
                     type="button"
                     key={country.code}
-                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 ${
+                    className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors duration-200 hover:bg-slate-50 ${
                       selected ? 'bg-blue-50 text-blue-700' : 'bg-white'
                     }`}
                     onClick={() => {
@@ -85,7 +103,10 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
                 {(value.countries ?? []).map((code) => {
                   const name = countries.find((c) => c.code === code)?.name ?? code;
                   return (
-                    <span key={code} className="rounded-full border bg-slate-50 px-2 py-1">
+                    <span
+                      key={code}
+                      className="rounded-full border bg-slate-50 px-2 py-1 transition-colors duration-200"
+                    >
                       {name}
                     </span>
                   );
@@ -99,7 +120,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
           <input
             type="radio"
             checked={value.mode === 'single'}
-            onChange={() => onChange({ mode: 'single', singleCountry: value.singleCountry ?? 'US' })}
+            onChange={() => onChange({ mode: 'single', singleCountry: selectedSingleCountryCode })}
           />
           Single country
         </label>
@@ -113,8 +134,8 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
             />
             <select
               className="w-full rounded border px-3 py-2 text-sm"
-              value={value.singleCountry ?? 'US'}
-              onChange={(event) => onChange({ mode: 'single', singleCountry: event.target.value })}
+              value={selectedSingleCountryCode}
+              onChange={(event) => handleSingleCountryChange(event.target.value)}
             >
               {filteredSingle.map((country) => (
                 <option key={country.code} value={country.code}>

@@ -1,34 +1,47 @@
 {
-  "name": "dummy-forge",
-  "version": "1.0.0",
+  "name": "dummyforge",
+  "version": "0.0.9",
   "description": "Educational data generation tool",
-  "homepage": "https://example.com/dummy-forge",
+  "homepage": "https://github.com/kanishkaGayan/Dummy-Forge",
   "author": {
-    "name": "Dummy Forge Team",
-    "email": "support@example.com"
+    "name": "Kanishka Gayan",
+    "email": "your.email@example.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kanishkaGayan/Dummy-Forge.git"
   },
   "main": "dist/electron/main.js",
   "private": true,
   "scripts": {
     "dev": "concurrently \"vite\" \"tsx server/index.ts\" \"tsc -p tsconfig.node.json --watch\" \"wait-on dist/electron/main.js && cross-env VITE_DEV_SERVER_URL=http://localhost:5190 electron dist/electron/main.js\"",
-    "build": "tsc -p tsconfig.node.json && vite build && electron-builder",
+    "build": "tsc -p tsconfig.node.json && vite build",
     "preview": "vite preview",
-    "lint": "tsc -p tsconfig.json --noEmit"
+    "lint": "tsc -p tsconfig.json --noEmit",
+    "package:win": "npm run build && electron-builder --win --publish never",
+    "package:linux": "npm run build && electron-builder --linux --publish never",
+    "package:all": "npm run build && electron-builder --win --linux --publish never",
+    "publish:github": "npm run build && electron-builder --win --linux --publish always",
+    "test:updates": "cross-env DEBUG_PROD=true npm run build && electron dist/electron/main.js",
+    "clean": "rm -rf dist release"
   },
   "dependencies": {
     "@faker-js/faker": "^8.4.0",
-    "better-sqlite3": "^9.2.2",
+    "better-sqlite3": "^12.6.2",
     "date-fns": "^3.0.6",
+    "electron-log": "^5.4.3",
+    "electron-updater": "^6.7.3",
     "express": "^4.18.2",
-    "jspdf": "^2.5.1",
-    "jspdf-autotable": "^3.8.2",
+    "jspdf": "^4.1.0",
+    "jspdf-autotable": "^5.0.7",
     "libphonenumber-js": "^1.10.51",
+    "lucide-react": "^0.451.0",
     "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.49.3",
-    "xlsx": "^0.18.5",
     "uuid": "^9.0.1",
+    "xlsx": "^0.18.5",
     "zod": "^3.22.4"
   },
   "devDependencies": {
@@ -38,54 +51,112 @@
     "@types/papaparse": "^5.5.2",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
-    "@types/xlsx": "^0.0.36",
+    "@types/xlsx": "^0.0.35",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
-    "electron": "^28.1.0",
-    "electron-builder": "^24.9.1",
+    "electron": "^40.4.1",
+    "electron-builder": "^26.7.0",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "tsx": "^4.7.1",
     "typescript": "^5.3.3",
-    "vite": "^5.0.10",
+    "vite": "^7.3.1",
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.dummyforge.app",
+    "appId": "com.kanishka.dummyforge",
     "productName": "Dummy Forge",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "package.json"
+    "copyright": "Copyright © 2024 Kanishka Gayan",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "kanishkaGayan",
+        "repo": "Dummy-Forge",
+        "releaseType": "release"
+      }
     ],
-    "mac": {
-      "category": "public.app-category.developer-tools",
-      "target": [
-        "dmg",
-        "zip"
-      ],
-      "icon": "src/icons/icon.png"
-    },
     "win": {
       "target": [
-        "nsis",
-        "portable"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
       "icon": "src/icons/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Dummy Forge",
+      "perMachine": false,
+      "license": "LICENSE",
+      "language": "1033"
     },
     "linux": {
       "target": [
-        "AppImage",
         "deb",
-        "snap"
+        "snap",
+        "AppImage"
       ],
+      "category": "Development",
+      "maintainer": "Kanishka Gayan <your.email@example.com>",
+      "vendor": "Kanishka Gayan",
       "icon": "src/icons/icon.png",
-      "maintainer": "Dummy Forge Team <support@example.com>"
-    }
+      "desktop": {
+        "entry": {
+          "Name": "Dummy Forge",
+          "Comment": "Educational Data Generation Tool",
+          "Categories": "Development;Database;Utility;",
+          "Keywords": "data;generator;database;sql;"
+        }
+      }
+    },
+    "deb": {
+      "depends": [
+        "libgtk-3-0",
+        "libnotify4",
+        "libnss3",
+        "libxtst6",
+        "xdg-utils",
+        "libatspi2.0-0",
+        "libuuid1",
+        "libsecret-1-0"
+      ],
+      "priority": "optional",
+      "afterInstall": "build/linux/after-install.sh"
+    },
+    "snap": {
+      "confinement": "strict",
+      "grade": "stable",
+      "summary": "Educational data generation tool",
+      "autoStart": false,
+      "allowNativeWayland": true
+    },
+    "appImage": {
+      "license": "LICENSE",
+      "category": "Development"
+    },
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "package.json",
+      "LICENSE"
+    ],
+    "extraFiles": [
+      {
+        "from": "LICENSE",
+        "to": "LICENSE.txt"
+      }
+    ]
   }
 }

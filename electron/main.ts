@@ -1,14 +1,19 @@
 import { app, BrowserWindow, dialog, Menu, shell, ipcMain } from 'electron';
 import fs from 'fs';
 import path from 'path';
+import autoUpdateManager from './autoUpdater';
+import { createAppMenu } from './menu';
 
 const isDev = !!process.env.VITE_DEV_SERVER_URL || !app.isPackaged;
+
+let mainWindow: BrowserWindow | null = null;
 
 const createWindow = () => {
   const win = new BrowserWindow({
     width: 1200,
     height: 800,
     title: 'Dummy Forge',
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -23,7 +28,24 @@ const createWindow = () => {
     win.loadFile(path.join(__dirname, '../renderer/index.html'));
   }
 
-  Menu.setApplicationMenu(null);
+  autoUpdateManager.setMainWindow(win);
+  if (process.platform === 'darwin') {
+    createAppMenu(win, { onCheckForUpdates: () => autoUpdateManager.checkForUpdates() });
+  } else {
+    Menu.setApplicationMenu(null);
+    win.setMenuBarVisibility(false);
+  }
+
+  win.on('closed', () => {
+    autoUpdateManager.stopPeriodicUpdateChecks();
+    mainWindow = null;
+  });
+
+  if (app.isPackaged) {
+    autoUpdateManager.checkForUpdatesOnStartup();
+  }
+
+  mainWindow = win;
 };
 
 app.whenReady().then(() => {
@@ -102,6 +124,17 @@ ipcMain.handle('dummyforge:log', (_event, payload) => {
   writeLog(logFile, payload);
 });
 
+ipcMain.handle('dummyforge:check-for-updates', () => {
+  autoUpdateManager.checkForUpdates();
+  return { success: true };
+});
+
+ipcMain.handle('dummyforge:get-app-version', () => app.getVersion());
+
 process.on('uncaughtException', (error) => {
   dialog.showErrorBox('Dummy Forge Error', error.message);
+});
+
+app.on('before-quit', () => {
+  autoUpdateManager.stopPeriodicUpdateChecks();
 });

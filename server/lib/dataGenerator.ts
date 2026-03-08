@@ -1,11 +1,13 @@
 import { faker } from '@faker-js/faker';
-import { getCountryCallingCode } from 'libphonenumber-js';
 import { format, subYears } from 'date-fns';
 import { countries } from '../utils/countryData';
 import { phoneRules } from '../utils/phoneRules';
+import { getDialCode, countryDialCodes } from '../utils/countryDialCodes';
 import { AgeConfig, FieldConfig, Gender, GenerationConfig, LocationConfig } from '../types';
 
 const genderOptions: Gender[] = ['male', 'female', 'other', 'non-binary'];
+const supportedCountryCodes = countryDialCodes.map((country) => country.code);
+const supportedCountryCodeSet = new Set(supportedCountryCodes);
 
 export class DataGenerator {
   private uniqueTrackers = new Map<string, Set<string>>();
@@ -133,19 +135,12 @@ export class DataGenerator {
 
   private generatePhone(countryCode: string): string {
     const rule = phoneRules[countryCode];
-    if (rule) {
-      const length = faker.number.int({ min: rule.minLength, max: rule.maxLength });
-      const national = faker.string.numeric(length);
-      return `+${rule.dialCode} ${national}`;
-    }
+    const dialCode = getDialCode(countryCode);
+    const national = rule
+      ? faker.string.numeric(faker.number.int({ min: rule.minLength, max: rule.maxLength }))
+      : faker.string.numeric({ length: { min: 8, max: 10 } });
 
-    try {
-      const callingCode = getCountryCallingCode(countryCode as never);
-      const national = faker.string.numeric({ length: { min: 8, max: 10 } });
-      return `+${callingCode} ${national}`;
-    } catch {
-      return faker.phone.number();
-    }
+    return `+${dialCode} ${national}`;
   }
 
   private generateEmail(gender: Gender): string {
@@ -175,11 +170,18 @@ export class DataGenerator {
   }
 
   private getCountryCode(location: LocationConfig): string {
-    if (location.mode === 'single' && location.singleCountry) return location.singleCountry;
-    if (location.mode === 'specific' && location.countries && location.countries.length > 0) {
-      return location.countries[faker.number.int({ min: 0, max: location.countries.length - 1 })];
+    if (location.mode === 'single' && location.singleCountry && supportedCountryCodeSet.has(location.singleCountry)) {
+      return location.singleCountry;
     }
-    return faker.location.countryCode();
+
+    if (location.mode === 'specific' && location.countries && location.countries.length > 0) {
+      const validCountries = location.countries.filter((country) => supportedCountryCodeSet.has(country));
+      if (validCountries.length > 0) {
+        return validCountries[faker.number.int({ min: 0, max: validCountries.length - 1 })];
+      }
+    }
+
+    return supportedCountryCodes[faker.number.int({ min: 0, max: supportedCountryCodes.length - 1 })];
   }
 
   private getCountryName(countryCode: string): string {
