@@ -1,13 +1,13 @@
 # Dummy Forge
 
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)
-![Version](https://img.shields.io/badge/Version-1.1.0-blue)
+![Version](https://img.shields.io/badge/Version-1.1.12-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-brightgreen)
 ![Node](https://img.shields.io/badge/Node-20%2B-green)
 
 Dummy Forge is a powerful desktop application for generating realistic, customizable dummy data for educational and development use. Configure fields, demographics, locations, generate up to 10,000 records, and export to multiple formats. Includes an integrated SQL Query Studio for practice and learning.
 
-## Release 1.1.0 Highlights
+## Release 1.1.12 Highlights
 - Added Query Studio with an in-app SQL practice console
 - Improved SQL diagnostics and autocomplete suggestions
 - Fixed country dial-code generation for single/specific/random country modes
@@ -75,7 +75,7 @@ Dummy Forge is a powerful desktop application for generating realistic, customiz
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/yourusername/dummy-forge.git
+  git clone https://github.com/kanishkaGayan/Dummy-Forge.git
    cd dummy-forge
    ```
 

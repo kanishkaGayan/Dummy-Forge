@@ -33,7 +33,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
             <img src={appIcon} alt="Dummy Forge" className="h-10 w-10 rounded" />
             <div className="flex flex-col">
               <h1 className="text-2xl font-bold">Dummy Forge</h1>
-              <p className="text-xs leading-tight text-slate-500 dark:text-slate-400">Generate realistic dummy data for education and development.</p>
+              <p className="text-xs leading-tight text-slate-500 dark:text-slate-400">Generate realistic, customizable dummy data for educational and development use.</p>
             </div>
           </div>
           <button
@@ -50,25 +50,25 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
         <section className="rounded-lg border border-slate-200 bg-white p-8 shadow-sm dark:border-slate-800 dark:bg-slate-900">
           <h2 className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100">About Dummy Forge</h2>
           <p className="mb-4 text-slate-700 dark:text-slate-300">
-            Dummy Forge is a powerful tool designed to generate realistic dummy data for educational, testing, and development purposes. Whether you're building a database application, testing data pipelines, or learning about data management, Dummy Forge provides customizable, synthetic data that meets your specific needs.
+            Dummy Forge is a desktop application for generating realistic, customizable dummy data for educational and development use. Configure fields, demographics, and locations, generate up to 10,000 records, and use Query Studio for SQL practice directly inside the app.
           </p>
           <div className="grid gap-6 md:grid-cols-3">
             <div className="rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30">
-              <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-300">Customizable Fields</h3>
+              <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-300">Release 1.1.12</h3>
               <p className="text-sm text-blue-800 dark:text-blue-200">
-                Choose from 30+ predefined field types or create custom fields with specific patterns and configurations.
+                Query Studio improvements, better diagnostics/autocomplete, refined theme readability, and country dial-code generation fixes.
               </p>
             </div>
             <div className="rounded-md border border-green-200 bg-green-50 p-4 dark:border-green-900/60 dark:bg-green-950/30">
-              <h3 className="mb-2 font-semibold text-green-900 dark:text-green-300">Multiple Export Formats</h3>
+              <h3 className="mb-2 font-semibold text-green-900 dark:text-green-300">Query Studio</h3>
               <p className="text-sm text-green-800 dark:text-green-200">
-                Export your generated data to CSV, SQL, PDF, TXT, and more formats with a single click.
+                Practice SQL with autocomplete, structure diagnostics, aggregate support, and paginated query result views.
               </p>
             </div>
             <div className="rounded-md border border-purple-200 bg-purple-50 p-4 dark:border-purple-900/60 dark:bg-purple-950/30">
               <h3 className="mb-2 font-semibold text-purple-900 dark:text-purple-300">Global Data Support</h3>
               <p className="text-sm text-purple-800 dark:text-purple-200">
-                Generate realistic data for 195+ countries with localized phone numbers and addresses.
+                Country-aware generation with random/specific/single-country modes and localized phone/address behavior.
               </p>
             </div>
           </div>
@@ -151,37 +151,37 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
             <ul className="space-y-2 text-slate-700 dark:text-slate-300">
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>30+ predefined field types (names, emails, phone numbers, etc.)</span>
+                <span>Generate up to 10,000 records per run</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Custom field creation with validation patterns</span>
+                <span>Predefined fields: personal, contact, location, identifiers, temporal and optional financial fields</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Demographics configuration (age, gender, location)</span>
+                <span>Custom fields with patterns, prefixes/suffixes, auto-increment and uniqueness options</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Multi-country phone number generation with correct dial codes</span>
+                <span>Demographics configuration for gender distribution and age ranges</span>
               </li>
             </ul>
             <ul className="space-y-2 text-slate-700 dark:text-slate-300">
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Unique field enforcement for emails and IDs</span>
+                <span>Country modes: random, specific list, or single country</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Export to CSV, SQL, PDF, and TXT formats</span>
+                <span>Export formats: CSV, SQL, TXT, PDF, and XLSX</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Real-time data preview with pagination</span>
+                <span>Dark/Light theme toggle for improved readability</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="mt-1 inline-block h-2 w-2 rounded-full bg-blue-600"></span>
-                <span>Generate thousands of records instantly</span>
+                <span>Integrated Query Studio with autocomplete, diagnostics, and pagination</span>
               </li>
             </ul>
           </div>

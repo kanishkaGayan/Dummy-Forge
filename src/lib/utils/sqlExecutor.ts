@@ -76,6 +76,22 @@ export class SQLExecutor {
     return this.data.length > 0 ? Object.keys(this.data[0]) : [];
   }
 
+  /**
+   * Get column value from row with case-insensitive lookup
+   * This aligns with SQL standard behavior where column names are case-insensitive
+   */
+  private getColumnValue(row: Record<string, any>, columnName: string): any {
+    // First try exact match for performance
+    if (columnName in row) {
+      return row[columnName];
+    }
+    
+    // Fall back to case-insensitive search
+    const columnLower = columnName.toLowerCase();
+    const actualKey = Object.keys(row).find(key => key.toLowerCase() === columnLower);
+    return actualKey ? row[actualKey] : undefined;
+  }
+
   analyzeQuery(query: string): QueryDiagnostic[] {
     const diagnostics: QueryDiagnostic[] = [];
     const trimmed = query.trim();
@@ -169,8 +185,8 @@ export class SQLExecutor {
     if (parsed.orderBy) {
       const { column, direction } = parsed.orderBy;
       results.sort((left, right) => {
-        const leftValue = left[column];
-        const rightValue = right[column];
+        const leftValue = this.getColumnValue(left, column);
+        const rightValue = this.getColumnValue(right, column);
 
         if (leftValue === rightValue) return 0;
         if (leftValue == null) return direction === 'ASC' ? -1 : 1;
@@ -257,8 +273,8 @@ export class SQLExecutor {
             resultRow[outputName] = groupRows.length;
           } else {
             const values = col.aggregateColumn 
-              ? groupRows.map(r => r[col.aggregateColumn!])
-              : groupRows.map(r => r[col.expression]);
+              ? groupRows.map(r => this.getColumnValue(r, col.aggregateColumn!))
+              : groupRows.map(r => this.getColumnValue(r, col.expression));
             const aggFunc = this.aggregateFunctions[col.aggregateFunc];
             resultRow[outputName] = aggFunc ? aggFunc(values) : null;
           }
@@ -273,7 +289,7 @@ export class SQLExecutor {
 
     // Apply HAVING filter
     if (parsed.having) {
-      return results.filter((row) => this.evaluateHaving(row, parsed.having!));
+      return results.filter((row) => this.evaluateHaving(row, parsed.having!, parsed.columns));
     }
 
     return results;
@@ -426,7 +442,10 @@ export class SQLExecutor {
     // Validate ORDER BY column exists or is an alias
     if (orderBy) {
       const availableColumns = [...this.getAvailableColumns(), ...columns.map(c => c.alias || c.expression)];
-      if (!availableColumns.includes(orderBy.column)) {
+      const orderByLower = orderBy.column.toLowerCase();
+      const columnExists = availableColumns.some(col => col.toLowerCase() === orderByLower);
+      
+      if (!columnExists) {
         throw new QueryValidationError(
           `Unknown column "${orderBy.column}" in ORDER BY.`,
           `Available columns: ${availableColumns.join(', ')}`
@@ -558,15 +577,30 @@ export class SQLExecutor {
       const char = str[i];
       const remaining = str.slice(i).toUpperCase();
       
-      // Track CASE...END blocks
-      if (remaining.startsWith('CASE')) {
+      // Helper to check if we're at a word boundary (start of keyword)
+      const isWordBoundary = (index: number) => {
+        if (index === 0) return true;
+        const prevChar = str[index - 1];
+        return !/[a-zA-Z0-9_]/.test(prevChar);
+      };
+      
+      // Helper to check if position after keyword is a word boundary
+      const isWordBoundaryAfter = (index: number, keywordLength: number) => {
+        const afterIndex = index + keywordLength;
+        if (afterIndex >= str.length) return true;
+        const nextChar = str[afterIndex];
+        return !/[a-zA-Z0-9_]/.test(nextChar);
+      };
+      
+      // Track CASE...END blocks (only if they're standalone keywords)
+      if (remaining.startsWith('CASE') && isWordBoundary(i) && isWordBoundaryAfter(i, 4)) {
         caseDepth++;
         i += 3; // Skip "CASE"
         current += 'CASE';
         continue;
       }
       
-      if (remaining.startsWith('END')) {
+      if (remaining.startsWith('END') && isWordBoundary(i) && isWordBoundaryAfter(i, 3)) {
         caseDepth = Math.max(0, caseDepth - 1);
         i += 2; // Skip "END"
         current += 'END';
@@ -673,7 +707,7 @@ export class SQLExecutor {
     row: Record<string, any>,
     condition: { column: string; operator: string; valueRaw: string }
   ): boolean {
-    const cellValue = row[condition.column];
+    const cellValue = this.getColumnValue(row, condition.column);
     const compareValue = this.parseValue(condition.valueRaw);
     const normalizedCellValue = this.normalizeValue(cellValue);
 
@@ -725,7 +759,8 @@ export class SQLExecutor {
       return Number(trimmed);
     }
 
-    return row[trimmed];
+    // Column reference - use case-insensitive lookup
+    return this.getColumnValue(row, trimmed);
   }
 
   private evaluateCaseExpression(row: Record<string, any>, caseExpression: string): any {
@@ -773,7 +808,7 @@ export class SQLExecutor {
       const column = betweenMatch[1];
       const min = this.parseValue(betweenMatch[2].trim());
       const max = this.parseValue(betweenMatch[3].trim());
-      const cellValue = this.normalizeValue(row[column]);
+      const cellValue = this.normalizeValue(this.getColumnValue(row, column));
 
       return cellValue >= min && cellValue <= max;
     }
@@ -801,7 +836,8 @@ export class SQLExecutor {
       return trimmed.toLowerCase() === 'true';
     }
 
-    return row[trimmed];
+    // Column reference - use case-insensitive lookup
+    return this.getColumnValue(row, trimmed);
   }
 
   private parseValue(valueRaw: string): string | number | boolean {
@@ -893,7 +929,7 @@ export class SQLExecutor {
 
   private evaluateSubstringIndexExpression(row: Record<string, any>, expression: string): string {
     const parsed = this.parseSubstringIndex(expression);
-    const rawValue = row[parsed.column];
+    const rawValue = this.getColumnValue(row, parsed.column);
     const text = rawValue == null ? '' : String(rawValue);
 
     if (parsed.count === 0) {
@@ -927,7 +963,11 @@ export class SQLExecutor {
       return;
     }
 
-    if (!availableColumns.includes(column)) {
+    // Case-insensitive column name comparison (SQL standard behavior)
+    const columnLower = column.toLowerCase();
+    const columnExists = availableColumns.some(col => col.toLowerCase() === columnLower);
+    
+    if (!columnExists) {
       throw new QueryValidationError(
         `Unknown column "${column}" in ${clause}.`,
         `Available columns: ${availableColumns.join(', ')}`
@@ -935,7 +975,7 @@ export class SQLExecutor {
     }
   }
 
-  private evaluateHaving(row: Record<string, any>, havingClause: string): boolean {
+  private evaluateHaving(row: Record<string, any>, havingClause: string, selectedColumns: ColumnSpec[]): boolean {
     const trimmed = havingClause.trim();
     
     // Parse HAVING condition: aggregate_function(col) OPERATOR value
@@ -947,18 +987,27 @@ export class SQLExecutor {
       const operator = aggMatch[3];
       const valueRaw = aggMatch[4].trim();
       
-      // Construct the column name as it appears in grouped results
-      const resultColumnName = `${func.toLowerCase()}(${col})`;
-      
-      // Check if this aggregate exists in the row
-      if (!(resultColumnName in row)) {
+      const matchingAggregate = selectedColumns.find((selectedCol) => {
+        if (!selectedCol.isAggregate || !selectedCol.aggregateFunc) {
+          return false;
+        }
+
+        const selectedFunc = selectedCol.aggregateFunc.toUpperCase();
+        const selectedAggCol = (selectedCol.aggregateColumn || '').toLowerCase();
+        const queryAggCol = col.toLowerCase();
+        return selectedFunc === func && selectedAggCol === queryAggCol;
+      });
+
+      if (!matchingAggregate) {
         throw new QueryValidationError(
           `HAVING references ${func}(${col}) but it's not in SELECT.`,
           `Add ${func}(${col}) to your SELECT clause or use an alias that matches.`
         );
       }
+
+      const resultColumnName = matchingAggregate.alias || matchingAggregate.expression;
       
-      const cellValue = row[resultColumnName];
+      const cellValue = this.getColumnValue(row, resultColumnName);
       const compareValue = this.parseValue(valueRaw);
       const normalizedCellValue = this.normalizeValue(cellValue);
       

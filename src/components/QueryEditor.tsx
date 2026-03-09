@@ -6,7 +6,6 @@ import { Info } from 'lucide-react';
 interface QueryEditorProps {
   data: Record<string, any>[];
   onDataImport?: (data: Record<string, any>[]) => void;
-  onDataExport?: (data: Record<string, any>[], filename: string) => void;
 }
 
 const SQL_KEYWORDS = [
@@ -78,7 +77,7 @@ const getCurrentToken = (value: string, cursorPosition: number): SuggestionMatch
   };
 };
 
-export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, onDataExport }) => {
+export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport }) => {
   const [query, setQuery] = useState('SELECT * FROM data;');
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -251,12 +250,6 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
     applySuggestion(suggestion, cursorPosition || query.length);
   };
 
-  const handleExportData = () => {
-    if (result && result.rows.length > 0 && onDataExport) {
-      onDataExport(result.rows, 'query-result.sql');
-    }
-  };
-
   return (
     <>
       <QueryHelp isOpen={showHelp} onClose={() => setShowHelp(false)} />
@@ -278,14 +271,6 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
               >
                 Execute
               </button>
-              {result && (
-                <button
-                  onClick={handleExportData}
-                  className="rounded-md bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors"
-                >
-                  Export Result
-                </button>
-              )}
             </div>
           </div>
 

@@ -1,11 +1,11 @@
 {
   "name": "dummyforge",
-  "version": "1.1.0",
+  "version": "1.1.12",
   "description": "Educational data generation tool",
   "homepage": "https://github.com/kanishkaGayan/Dummy-Forge",
   "author": {
-    "name": "Kanishka Gayan",
-    "email": "your.email@example.com"
+    "name": "Kanishka Meddegoda",
+    "email": "gayanmedde2022@gmail.com"
   },
   "repository": {
     "type": "git",
