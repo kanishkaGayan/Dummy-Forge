@@ -15,7 +15,7 @@ Dummy Forge is a powerful desktop application for generating realistic, customiz
 - Refined dark mode contrast and readability
 
 ## Features
-- Generate up to 10,000 records per run
+- Generate up to 100,000 records per run
 - Query Studio for SQL practice with autocomplete, diagnostics, and pagination
 - Dark/Light theme toggle for better readability
 - Predefined fields:
