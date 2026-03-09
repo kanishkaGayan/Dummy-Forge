@@ -29,7 +29,7 @@ export const FieldSelector: React.FC<FieldSelectorProps> = ({
     <div className="rounded-lg border bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
       <h3 className="mb-3 text-sm font-semibold text-slate-700">Predefined Fields</h3>
       {conflictMessage && (
-        <p className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700">
+        <p className="mb-3 rounded border border-red-200 bg-red-50 px-3 py-2 text-xs text-red-700 dark:border-red-700 dark:bg-red-900/30 dark:text-red-300">
           {conflictMessage}
         </p>
       )}

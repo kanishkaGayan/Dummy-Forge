@@ -46,31 +46,31 @@ export const ErrorDialog: React.FC<ErrorDialogProps> = ({ error, onClose, onRetr
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+      <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl dark:bg-slate-800 dark:text-slate-100">
         <div className="mb-4 flex items-center">
           <div className={`mr-3 flex h-10 w-10 items-center justify-center rounded-full text-2xl text-white ${getSeverityColor()}`}>
             {getSeverityIcon()}
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gray-900">{display.title}</h2>
-            <p className="text-xs text-gray-500">Error Code: {display.code}</p>
+            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">{display.title}</h2>
+            <p className="text-xs text-gray-500 dark:text-slate-400">Error Code: {display.code}</p>
           </div>
         </div>
 
         <div className="mb-4">
-          <p className="mb-3 text-gray-700">{display.message}</p>
-          <div className="rounded border-l-4 border-blue-400 bg-blue-50 p-3">
-            <p className="mb-1 text-sm font-semibold text-blue-900">How to fix:</p>
-            <p className="text-sm text-blue-800">{display.resolution}</p>
+          <p className="mb-3 text-gray-700 dark:text-slate-200">{display.message}</p>
+          <div className="rounded border-l-4 border-blue-400 bg-blue-50 p-3 dark:border-blue-500 dark:bg-blue-900/30">
+            <p className="mb-1 text-sm font-semibold text-blue-900 dark:text-blue-200">How to fix:</p>
+            <p className="text-sm text-blue-800 dark:text-blue-300">{display.resolution}</p>
           </div>
         </div>
 
         {error.technicalDetails && (
           <details className="mb-4">
-            <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800">
+            <summary className="cursor-pointer text-sm text-gray-600 hover:text-gray-800 dark:text-slate-300 dark:hover:text-slate-100">
               Technical Details
             </summary>
-            <pre className="mt-2 overflow-x-auto rounded bg-gray-100 p-2 text-xs">{error.technicalDetails}</pre>
+            <pre className="mt-2 overflow-x-auto rounded bg-gray-100 p-2 text-xs dark:bg-slate-900 dark:text-slate-200">{error.technicalDetails}</pre>
           </details>
         )}
 
@@ -85,7 +85,7 @@ export const ErrorDialog: React.FC<ErrorDialogProps> = ({ error, onClose, onRetr
           )}
           <button
             onClick={onClose}
-            className="rounded bg-gray-200 px-4 py-2 text-gray-700 transition hover:bg-gray-300"
+            className="rounded bg-gray-200 px-4 py-2 text-gray-700 transition hover:bg-gray-300 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600"
           >
             Close
           </button>

@@ -65,7 +65,14 @@ const LICENSE_KEY = 'dummyforge_license_accepted';
 const App: React.FC = () => {
   const [licenseOpen, setLicenseOpen] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  // Initialize theme from localStorage to prevent flash
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem(THEME_KEY);
+      return saved === 'dark' ? 'dark' : 'light';
+    }
+    return 'light';
+  });
   const [activeTab, setActiveTab] = useState<TabType>('generator');
   const [fields, setFields] = useState<SelectableField[]>(predefinedFields);
   const [customFields, setCustomFields] = useState<FieldConfig[]>([]);
@@ -80,20 +87,18 @@ const App: React.FC = () => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [predefinedConflict, setPredefinedConflict] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState(0);
 
   useEffect(() => {
     const accepted = localStorage.getItem(LICENSE_KEY) === 'true';
     setLicenseOpen(!accepted);
-
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    const initialTheme = savedTheme === 'dark' ? 'dark' : 'light';
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle('dark', initialTheme === 'dark');
-  }, []);
+    // Apply initial theme to DOM
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+  }, [theme]);
 
   useEffect(() => {
+    // Save theme to localStorage whenever it changes
     localStorage.setItem(THEME_KEY, theme);
-    document.documentElement.classList.toggle('dark', theme === 'dark');
   }, [theme]);
 
   useEffect(() => {
@@ -112,9 +117,58 @@ const App: React.FC = () => {
     return [...fields.filter((field) => field.selected), ...customFields];
   }, [fields, customFields]);
 
+  const showAgeSelection = useMemo(
+    () => fields.some((field) => field.selected && (field.type === 'age' || field.type === 'dateOfBirth')),
+    [fields]
+  );
+
+  const showGenderSelection = useMemo(
+    () => fields.some((field) => field.selected && field.type === 'gender'),
+    [fields]
+  );
+
+  const showLocationSettings = useMemo(() => {
+    const locationDependentTypes = new Set([
+      'country',
+      'phone',
+      'mobilePhone',
+      'landline',
+      'address',
+      'streetAddress',
+      'city',
+      'state',
+      'postalCode'
+    ]);
+
+    return fields.some((field) => field.selected && locationDependentTypes.has(field.type));
+  }, [fields]);
+
   const handleGenerate = () => {
     if (isGenerating) return;
+    
+    // Validate unique fields constraints
+    const uniqueFields = activeFields.filter(f => f.unique);
+    if (uniqueFields.length > 0) {
+      const maxUniqueCount = Math.min(recordCount, 100000);
+      const estimatedUniqueCapacity = 100000; // Capacity for unique values
+      
+      if (recordCount > estimatedUniqueCapacity && uniqueFields.length > 0) {
+        setError(createError(
+          'DF-GEN-006',
+          `Cannot generate ${recordCount} records with unique fields. Maximum allowed: ${estimatedUniqueCapacity} records with unique fields.`
+        ));
+        return;
+      }
+    }
+    
     setIsGenerating(true);
+    setGenerationProgress(5);
+    const startTime = Date.now();
+
+    const progressTimer = window.setInterval(() => {
+      setGenerationProgress((prev) => (prev < 90 ? prev + 5 : prev));
+    }, 120);
+    
     window.setTimeout(() => {
       try {
         const generator = new DataGenerator();
@@ -131,7 +185,23 @@ const App: React.FC = () => {
         };
 
         const records = generator.generateRecords(config);
+        
+        // Validate generation success
+        if (!records || records.length === 0) {
+          throw createError('DF-GEN-005', 'Data generation produced no records');
+        }
+        
+        if (records.length < recordCount) {
+          console.warn(`Generated ${records.length} records instead of requested ${recordCount}`);
+        }
+        
         setData(records);
+        setGenerationProgress(100);
+        
+        // Show success notification
+        const duration = Date.now() - startTime;
+        console.log(`✓ Successfully generated ${records.length} records in ${duration}ms`);
+        
       } catch (err) {
         if (err instanceof DummyForgeError) {
           setError(err);
@@ -141,7 +211,11 @@ const App: React.FC = () => {
           setError(createError('DF-GEN-005', 'Unknown error'));
         }
       } finally {
-        setIsGenerating(false);
+        window.clearInterval(progressTimer);
+        window.setTimeout(() => {
+          setIsGenerating(false);
+          setGenerationProgress(0);
+        }, 250);
       }
     }, 50);
   };
@@ -337,14 +411,16 @@ const App: React.FC = () => {
               />
             </div>
             <CustomFieldList fields={customFields} onEdit={setEditingField} onDelete={handleDeleteCustomField} />
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className={`grid gap-6 ${showLocationSettings ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
               <DemographicsConfigPanel
                 value={demographics}
                 recordCount={recordCount}
+                showAgeSelection={showAgeSelection}
+                showGenderSelection={showGenderSelection}
                 onRecordCountChange={setRecordCount}
                 onChange={setDemographics}
               />
-              <CountrySelector value={location} onChange={setLocation} />
+              {showLocationSettings && <CountrySelector value={location} onChange={setLocation} />}
             </div>
             <ExportOptions value={exportSelection} onChange={setExportSelection} />
 
@@ -378,6 +454,21 @@ const App: React.FC = () => {
                 Clear Data
               </button>
             </div>
+
+            {isGenerating && (
+              <div className="rounded border border-slate-200 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-800/70">
+                <div className="mb-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+                  <span>Generating data, please wait...</span>
+                  <span>{Math.min(100, Math.max(0, generationProgress))}%</span>
+                </div>
+                <div className="h-2 w-full overflow-hidden rounded bg-slate-200 dark:bg-slate-700">
+                  <div
+                    className="h-full bg-blue-600 transition-all duration-150"
+                    style={{ width: `${Math.min(100, Math.max(0, generationProgress))}%` }}
+                  />
+                </div>
+              </div>
+            )}
 
             {showClearConfirm && (
               <div className="mt-3 flex flex-wrap items-center gap-3 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

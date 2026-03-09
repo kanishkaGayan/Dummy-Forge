@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { FieldConfig, FieldType } from '../types/schema';
+import { sanitizeFieldName, sanitizePattern, sanitizeAffix, sanitizeNumber, sanitizePercentage } from '../lib/utils/sanitizer';
 
 const fieldTypeOptions: Array<{ value: FieldType; label: string; helper: string }> = [
   { value: 'randomString', label: 'Letters', helper: 'Random letters (A-Z)' },
@@ -122,22 +123,28 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
   }, [selectedType, setValue]);
 
   const onSubmit = (values: CustomFieldFormValues) => {
+    // Sanitize all inputs
+    const sanitizedName = sanitizeFieldName(values.name);
+    const sanitizedPattern = values.pattern ? sanitizePattern(values.pattern) : undefined;
+    const sanitizedPrefix = values.prefix ? sanitizeAffix(values.prefix) : undefined;
+    const sanitizedSuffix = values.suffix ? sanitizeAffix(values.suffix) : undefined;
+    
     const payload: FieldConfig = {
-      name: values.name,
+      name: sanitizedName,
       type: values.type,
       unique: values.unique,
       config: {
-        lengthMin: values.lengthMin,
-        lengthMax: values.lengthMax,
-        numberMin: values.numberMin,
-        numberMax: values.numberMax,
-        prefix: values.prefix,
-        suffix: values.suffix,
-        start: values.start,
-        step: values.step,
-        pattern: values.pattern,
+        lengthMin: sanitizeNumber(values.lengthMin, 1, 1000),
+        lengthMax: sanitizeNumber(values.lengthMax, 1, 1000),
+        numberMin: sanitizeNumber(values.numberMin, -999999999, 999999999),
+        numberMax: sanitizeNumber(values.numberMax, -999999999, 999999999),
+        prefix: sanitizedPrefix,
+        suffix: sanitizedSuffix,
+        start: sanitizeNumber(values.start, 1, 999999999),
+        step: sanitizeNumber(values.step, 1, 999999999),
+        pattern: sanitizedPattern,
         dateFormat: values.dateFormat,
-        booleanTruePercentage: values.booleanTruePercentage
+        booleanTruePercentage: sanitizePercentage(values.booleanTruePercentage)
       }
     };
 
@@ -168,15 +175,15 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="rounded-lg border bg-white p-4 shadow-sm">
-      <h3 className="mb-3 text-sm font-semibold text-slate-700">
+    <form onSubmit={handleSubmit(onSubmit)} className="rounded-lg border bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
+      <h3 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">
         {editingField ? 'Edit Custom Field' : 'Add Custom Field'}
       </h3>
       <div className="grid gap-3 md:grid-cols-2">
         <div>
-          <label className="text-xs font-medium text-slate-600">Field name</label>
+          <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Field name</label>
           <input
-            className="mt-1 w-full rounded border px-3 py-2 text-sm"
+            className="mt-1 w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
             disabled={!!editingField}
             maxLength={20}
             {...register('name', {
@@ -196,31 +203,31 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
               }
             })}
           />
-          <p className="mt-1 text-xs text-slate-500">{Math.max(0, 20 - nameValue.length)} characters remaining</p>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{Math.max(0, 20 - nameValue.length)} characters remaining</p>
           {errors.name && <p className="mt-1 text-xs text-red-600">{errors.name.message}</p>}
-          {editingField && <p className="mt-1 text-xs text-slate-500">Name can’t be changed while editing.</p>}
+          {editingField && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">Name can’t be changed while editing.</p>}
         </div>
         <div>
-          <label className="text-sm font-semibold text-slate-800">Type</label>
-          <select className="mt-1 w-full rounded border-2 border-slate-300 bg-slate-50 px-3 py-2 text-sm" {...register('type')}>
+          <label className="text-sm font-semibold text-slate-800 dark:text-slate-200">Type</label>
+          <select className="mt-1 w-full rounded border-2 border-slate-300 bg-slate-50 px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100" {...register('type')}>
             {fieldTypeOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
             ))}
           </select>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {fieldTypeOptions.find((option) => option.value === selectedType)?.helper}
           </p>
         </div>
         {(selectedType === 'randomString' || selectedType === 'randomNumeric' || selectedType === 'randomAlphanumeric') && (
           <>
             <div>
-              <label className="text-xs font-medium text-slate-600">Min length</label>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Min length</label>
               <input
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                className="mt-1 w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
                 {...register('lengthMin', {
                   setValueAs: (value) => (value === '' ? undefined : Number(value)),
                   validate: (value) => {
@@ -238,11 +245,11 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
               {errors.lengthMin && <p className="mt-1 text-xs text-red-600">{errors.lengthMin.message}</p>}
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600">Max length</label>
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">Max length</label>
               <input
                 type="number"
                 min={1}
-                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                className="mt-1 w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
                 {...register('lengthMax', {
                   setValueAs: (value) => (value === '' ? undefined : Number(value)),
                   validate: (value) => {
@@ -261,12 +268,12 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
               {errors.lengthMax && <p className="mt-1 text-xs text-red-600">{errors.lengthMax.message}</p>}
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600">
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
                 Prefix (optional)
                 <span className="ml-1 cursor-help text-slate-400" title="Text added before the value.">ⓘ</span>
               </label>
               <input
-                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                className="mt-1 w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
                 maxLength={6}
                 {...register('prefix', {
                   validate: (value) => {
@@ -275,16 +282,16 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
                   }
                 })}
               />
-              <p className="mt-1 text-xs text-slate-500">{Math.max(0, 6 - prefixValue.length)} characters remaining</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{Math.max(0, 6 - prefixValue.length)} characters remaining</p>
               {errors.prefix && <p className="mt-1 text-xs text-red-600">{errors.prefix.message}</p>}
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600">
+              <label className="text-xs font-medium text-slate-600 dark:text-slate-300">
                 Suffix (optional)
                 <span className="ml-1 cursor-help text-slate-400" title="Text added after the value.">ⓘ</span>
               </label>
               <input
-                className="mt-1 w-full rounded border px-3 py-2 text-sm"
+                className="mt-1 w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
                 maxLength={6}
                 {...register('suffix', {
                   validate: (value) => {
@@ -293,7 +300,7 @@ export const CustomFieldForm: React.FC<CustomFieldFormProps> = ({
                   }
                 })}
               />
-              <p className="mt-1 text-xs text-slate-500">{Math.max(0, 6 - suffixValue.length)} characters remaining</p>
+              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{Math.max(0, 6 - suffixValue.length)} characters remaining</p>
               {errors.suffix && <p className="mt-1 text-xs text-red-600">{errors.suffix.message}</p>}
             </div>
           </>

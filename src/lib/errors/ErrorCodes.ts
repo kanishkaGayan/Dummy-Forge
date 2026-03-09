@@ -48,8 +48,8 @@ export const ERROR_CODES: Record<string, ErrorCode> = {
     category: ErrorCategory.GENERATION,
     severity: ErrorSeverity.HIGH,
     message: 'Record count exceeds maximum allowed',
-    userMessage: 'You can generate a maximum of 10,000 records at a time.',
-    resolution: 'Reduce the record count to 10,000 or less',
+    userMessage: 'You can generate a maximum of 100,000 records at a time.',
+    resolution: 'Reduce the record count to 100,000 or less',
     logLevel: 'warn'
   },
   'DF-GEN-004': {

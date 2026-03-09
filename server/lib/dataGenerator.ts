@@ -3,6 +3,7 @@ import { format, subYears } from 'date-fns';
 import { countries } from '../utils/countryData';
 import { phoneRules } from '../utils/phoneRules';
 import { getDialCode, countryDialCodes } from '../utils/countryDialCodes';
+import { getCountryLocationEntry } from '../utils/locationData';
 import { AgeConfig, FieldConfig, Gender, GenerationConfig, LocationConfig } from '../types';
 
 const genderOptions: Gender[] = ['male', 'female', 'other', 'non-binary'];
@@ -77,13 +78,13 @@ export class DataGenerator {
       case 'country':
         return this.getCountryName(countryCode);
       case 'city':
-        return faker.location.city();
+        return this.getLocationParts(countryCode).city ?? faker.location.city();
       case 'state':
-        return faker.location.state();
+        return this.getLocationParts(countryCode).state ?? faker.location.state();
       case 'address':
-        return `${faker.location.streetAddress()}, ${faker.location.city()}, ${faker.location.state()}, ${this.getCountryName(countryCode)}`;
+        return this.generateAddress(countryCode);
       case 'streetAddress':
-        return faker.location.streetAddress();
+        return this.generateStreetAddress(countryCode);
       case 'postalCode':
         return faker.location.zipCode();
       case 'latitude':
@@ -186,6 +187,66 @@ export class DataGenerator {
 
   private getCountryName(countryCode: string): string {
     return countries.find((c) => c.code === countryCode)?.name ?? countryCode;
+  }
+
+  private getLocationParts(countryCode: string): { state?: string; city?: string; village?: string } {
+    const locationEntry = getCountryLocationEntry(countryCode);
+    if (!locationEntry) {
+      return {};
+    }
+
+    return {
+      state: this.pickRandom(locationEntry.states),
+      city: this.pickRandom(locationEntry.cities),
+      village: this.pickRandom(locationEntry.villages)
+    };
+  }
+
+  private generateStreetAddress(countryCode: string): string {
+    const locationParts = this.getLocationParts(countryCode);
+    const houseNumber = this.generateAddressNumber();
+    const village = locationParts.village ?? this.generateFallbackVillage();
+    return `${houseNumber}, ${village}`;
+  }
+
+  private generateAddress(countryCode: string): string {
+    const locationParts = this.getLocationParts(countryCode);
+    const country = this.getCountryName(countryCode);
+    const houseNumber = this.generateAddressNumber();
+    const locality = this.selectSingleLocality(locationParts);
+    return `${houseNumber}, ${locality}, ${country}`;
+  }
+
+  private selectSingleLocality(locationParts: { state?: string; city?: string; village?: string }): string {
+    const available: string[] = [];
+    if (locationParts.village) available.push(locationParts.village);
+    if (locationParts.city) available.push(locationParts.city);
+    if (locationParts.state) available.push(locationParts.state);
+
+    if (available.length > 0) {
+      return available[faker.number.int({ min: 0, max: available.length - 1 })];
+    }
+
+    return faker.location.city();
+  }
+
+  private pickRandom(values: string[]): string | undefined {
+    if (values.length === 0) {
+      return undefined;
+    }
+
+    return values[faker.number.int({ min: 0, max: values.length - 1 })];
+  }
+
+  private generateAddressNumber(): string {
+    const digits = faker.number.int({ min: 1, max: 999 }).toString();
+    const withPrefix = faker.datatype.boolean() ? `${faker.string.alpha({ length: 1, casing: 'upper' })}${digits}` : digits;
+    const withSuffix = faker.datatype.boolean() ? `${withPrefix}/${faker.number.int({ min: 1, max: 9 })}` : withPrefix;
+    return withSuffix;
+  }
+
+  private generateFallbackVillage(): string {
+    return `${faker.location.city()} Village`;
   }
 
   private ensureUnique(

@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { SQLExecutor, QueryDiagnostic, QueryResult } from '../lib/utils/sqlExecutor';
+import { QueryHelp } from './QueryHelp';
+import { Info } from 'lucide-react';
 
 interface QueryEditorProps {
   data: Record<string, any>[];
@@ -15,10 +17,18 @@ const SQL_KEYWORDS = [
   'OR',
   'ORDER BY',
   'GROUP BY',
+  'HAVING',
   'LIMIT',
   'LIKE',
+  'NOT LIKE',
   'ASC',
-  'DESC'
+  'DESC',
+  'AS',
+  'COUNT',
+  'SUM',
+  'AVG',
+  'MIN',
+  'MAX'
 ];
 
 const SQL_TEMPLATES = [
@@ -29,7 +39,17 @@ const SQL_TEMPLATES = [
   'SELECT column FROM data WHERE column = "value" AND column2 > 10',
   'SELECT column FROM data ORDER BY column ASC',
   'SELECT column FROM data ORDER BY column DESC',
-  'SELECT column FROM data LIMIT 10'
+  'SELECT column FROM data LIMIT 10',
+  'SELECT COUNT(*) FROM data',
+  'SELECT column, COUNT(*) FROM data GROUP BY column',
+  'SELECT column, SUM(value) AS total FROM data GROUP BY column',
+  'SELECT column, AVG(value) FROM data GROUP BY column',
+  'SELECT column, COUNT(*) AS count FROM data GROUP BY column ORDER BY count DESC',
+  'SELECT column, COUNT(*) FROM data GROUP BY column HAVING COUNT(*) > 5',
+  "SELECT stuID, firstName, email FROM data WHERE email NOT LIKE '%@%'",
+  "SELECT SUBSTRING_INDEX(email, '@', -1) AS domain, COUNT(stuID) AS count FROM data GROUP BY SUBSTRING_INDEX(email, '@', -1) ORDER BY count DESC",
+  'SELECT CASE WHEN column > 50 THEN "High" ELSE "Low" END AS category FROM data',
+  'SELECT CASE WHEN age < 18 THEN "Minor" WHEN age < 65 THEN "Adult" ELSE "Senior" END AS age_group, COUNT(*) FROM data GROUP BY age_group'
 ];
 
 interface SuggestionMatch {
@@ -63,12 +83,14 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
   const [result, setResult] = useState<QueryResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [diagnostics, setDiagnostics] = useState<QueryDiagnostic[]>([]);
+  const [showDiagnostics, setShowDiagnostics] = useState(true);
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
   const [cursorPosition, setCursorPosition] = useState(0);
   const [resultPage, setResultPage] = useState(1);
   const [rowsPerPage] = useState(20);
+  const [showHelp, setShowHelp] = useState(false);
 
   const executor = useMemo(() => {
     const exec = new SQLExecutor();
@@ -137,7 +159,13 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
   const handleQueryChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    setDiagnostics(executor.analyzeQuery(newQuery));
+    const newDiagnostics = executor.analyzeQuery(newQuery);
+    setDiagnostics(newDiagnostics);
+    
+    // Show diagnostics if there are errors or warnings
+    if (newDiagnostics.length > 0) {
+      setShowDiagnostics(true);
+    }
 
     const cursorPosition = e.target.selectionStart ?? newQuery.length;
     setCursorPosition(cursorPosition);
@@ -205,6 +233,7 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
 
     const structuralError = queryDiagnostics.find((diag) => diag.severity === 'error');
     if (structuralError) {
+      setShowDiagnostics(true);
       setError(structuralError.hint ? `${structuralError.message} Hint: ${structuralError.hint}` : structuralError.message);
       return;
     }
@@ -213,6 +242,7 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
       const queryResult = executor.execute(query);
       setResult(queryResult);
     } catch (err) {
+      setShowDiagnostics(true);
       setError(err instanceof Error ? err.message : String(err));
     }
   };
@@ -228,27 +258,36 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
   };
 
   return (
-    <div className="flex h-full flex-col gap-4 rounded-lg bg-white p-6 shadow-sm">
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-slate-700">SQL Query Editor</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={handleExecute}
-              className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors"
-            >
-              Execute
-            </button>
-            {result && (
+    <>
+      <QueryHelp isOpen={showHelp} onClose={() => setShowHelp(false)} />
+      <div className="flex h-full flex-col gap-4 rounded-lg bg-white p-6 shadow-sm dark:bg-slate-800">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-700 dark:text-slate-100">SQL Query Editor</h2>
+            <div className="flex gap-2">
               <button
-                onClick={handleExportData}
-                className="rounded-md bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors"
+                onClick={() => setShowHelp(true)}
+                className="rounded-md border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
+                title="Query Reference & Examples"
               >
-                Export Result
+                <Info className="h-4 w-4" />
               </button>
-            )}
+              <button
+                onClick={handleExecute}
+                className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600 transition-colors"
+              >
+                Execute
+              </button>
+              {result && (
+                <button
+                  onClick={handleExportData}
+                  className="rounded-md bg-green-500 px-4 py-2 text-sm font-medium text-white hover:bg-green-600 transition-colors"
+                >
+                  Export Result
+                </button>
+              )}
+            </div>
           </div>
-        </div>
 
         <div className="relative">
           <textarea
@@ -286,11 +325,20 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
           Available columns: {columns.length > 0 ? columns.join(', ') : 'No data available'}
         </p>
         <p className="text-xs text-slate-500">Tip: Use <strong>Tab</strong> or <strong>Enter</strong> to accept suggestions.</p>
-        <p className="text-xs text-slate-500">Use double quotes for text values: <strong>WHERE country = "Sri Lanka"</strong></p>
 
-        {diagnostics.length > 0 && (
+        {diagnostics.length > 0 && showDiagnostics && (
           <div className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
-            <p className="mb-1 font-semibold text-slate-700">Query Structure Monitor</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-semibold text-slate-700">Query Structure Monitor</p>
+              <button
+                type="button"
+                onClick={() => setShowDiagnostics(false)}
+                className="text-slate-500 hover:text-slate-700 transition-colors"
+                title="Close diagnostics"
+              >
+                ✕
+              </button>
+            </div>
             {diagnostics.map((diag, index) => (
               <p key={`${diag.message}-${index}`} className={diag.severity === 'error' ? 'text-red-700' : 'text-slate-600'}>
                 {diag.severity === 'error' ? 'Error: ' : 'Info: '}
@@ -370,5 +418,6 @@ export const QueryEditor: React.FC<QueryEditorProps> = ({ data, onDataImport, on
         </div>
       )}
     </div>
+    </>
   );
 };

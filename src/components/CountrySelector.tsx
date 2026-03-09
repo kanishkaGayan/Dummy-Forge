@@ -14,7 +14,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
   const selectedSingleCountryCode = useMemo(() => {
     const code = (value.singleCountry ?? '').toUpperCase();
     const isValid = countries.some((country) => country.code === code);
-    return isValid ? code : 'US';
+    return isValid ? code : '';
   }, [value.singleCountry]);
 
   const filteredSpecific = useMemo(() => {
@@ -27,29 +27,23 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
 
   const filteredSingle = useMemo(() => {
     const query = singleSearch.trim().toLowerCase();
-    const matched = query
+    return query
       ? countries.filter((country) =>
           `${country.name} ${country.code}`.toLowerCase().includes(query)
         )
       : countries;
-
-    const selectedCountry = countries.find((country) => country.code === selectedSingleCountryCode);
-    if (selectedCountry && !matched.some((country) => country.code === selectedSingleCountryCode)) {
-      return [selectedCountry, ...matched];
-    }
-
-    return matched;
-  }, [singleSearch, selectedSingleCountryCode]);
+  }, [singleSearch]);
 
   const handleSingleCountryChange = (countryCode: string) => {
-    onChange({ mode: 'single', singleCountry: countryCode.toUpperCase() });
+    const normalizedCode = countryCode.trim().toUpperCase();
+    onChange({ mode: 'single', singleCountry: normalizedCode || undefined });
   };
 
   return (
-    <div className="rounded-lg border bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md">
-      <h3 className="mb-3 text-sm font-semibold text-slate-700">Country & Location Settings</h3>
+    <div className="rounded-lg border bg-white p-4 shadow-sm transition-shadow duration-200 hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+      <h3 className="mb-3 text-sm font-semibold text-slate-700 dark:text-slate-200">Country & Location Settings</h3>
       <div className="space-y-3">
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm dark:text-slate-200">
           <input
             type="radio"
             checked={value.mode === 'random'}
@@ -57,7 +51,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
           />
           Random countries
         </label>
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm dark:text-slate-200">
           <input
             type="radio"
             checked={value.mode === 'specific'}
@@ -67,13 +61,22 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
         </label>
         {value.mode === 'specific' && (
           <div className="space-y-2">
-            <input
-              className="w-full rounded border px-3 py-2 text-sm"
-              placeholder="Search countries..."
-              value={specificSearch}
-              onChange={(event) => setSpecificSearch(event.target.value)}
-            />
-            <div className="max-h-56 overflow-auto rounded border">
+            <div className="flex gap-2">
+              <input
+                className="w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                placeholder="Search countries..."
+                value={specificSearch}
+                onChange={(event) => setSpecificSearch(event.target.value)}
+              />
+              <button
+                type="button"
+                className="rounded border px-3 py-2 text-xs dark:border-slate-600 dark:text-slate-200"
+                onClick={() => setSpecificSearch('')}
+              >
+                Clear
+              </button>
+            </div>
+            <div className="max-h-56 overflow-auto rounded border dark:border-slate-600">
               {filteredSpecific.map((country) => {
                 const selected = (value.countries ?? []).includes(country.code);
                 return (
@@ -81,7 +84,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
                     type="button"
                     key={country.code}
                     className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm transition-colors duration-200 hover:bg-slate-50 ${
-                      selected ? 'bg-blue-50 text-blue-700' : 'bg-white'
+                      selected ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300' : 'bg-white dark:bg-slate-800 dark:text-slate-200'
                     }`}
                     onClick={() => {
                       const current = value.countries ?? [];
@@ -105,7 +108,7 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
                   return (
                     <span
                       key={code}
-                      className="rounded-full border bg-slate-50 px-2 py-1 transition-colors duration-200"
+                      className="rounded-full border bg-slate-50 px-2 py-1 transition-colors duration-200 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200"
                     >
                       {name}
                     </span>
@@ -113,37 +116,54 @@ export const CountrySelector: React.FC<CountrySelectorProps> = ({ value, onChang
                 })}
               </div>
             )}
-            <p className="text-xs text-slate-500">Showing {filteredSpecific.length} countries</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Showing {filteredSpecific.length} countries</p>
           </div>
         )}
-        <label className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2 text-sm dark:text-slate-200">
           <input
             type="radio"
             checked={value.mode === 'single'}
-            onChange={() => onChange({ mode: 'single', singleCountry: selectedSingleCountryCode })}
+            onChange={() => onChange({ mode: 'single', singleCountry: selectedSingleCountryCode || undefined })}
           />
           Single country
         </label>
         {value.mode === 'single' && (
           <div className="space-y-2">
-            <input
-              className="w-full rounded border px-3 py-2 text-sm"
-              placeholder="Search countries..."
-              value={singleSearch}
-              onChange={(event) => setSingleSearch(event.target.value)}
-            />
+            <div className="flex gap-2">
+              <input
+                className="w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
+                placeholder="Search countries..."
+                value={singleSearch}
+                onChange={(event) => setSingleSearch(event.target.value)}
+              />
+              <button
+                type="button"
+                className="rounded border px-3 py-2 text-xs dark:border-slate-600 dark:text-slate-200"
+                onClick={() => setSingleSearch('')}
+              >
+                Clear
+              </button>
+            </div>
             <select
-              className="w-full rounded border px-3 py-2 text-sm"
+              className="w-full rounded border px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-900 dark:text-slate-100"
               value={selectedSingleCountryCode}
               onChange={(event) => handleSingleCountryChange(event.target.value)}
             >
+              <option value="">Select a country</option>
               {filteredSingle.map((country) => (
                 <option key={country.code} value={country.code}>
                   {country.name}
                 </option>
               ))}
             </select>
-            <p className="text-xs text-slate-500">Showing {filteredSingle.length} countries</p>
+            <button
+              type="button"
+              className="rounded border px-3 py-2 text-xs dark:border-slate-600 dark:text-slate-200"
+              onClick={() => handleSingleCountryChange('')}
+            >
+              Clear selected country
+            </button>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Showing {filteredSingle.length} countries</p>
           </div>
         )}
       </div>
