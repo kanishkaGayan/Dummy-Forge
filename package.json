@@ -19,6 +19,7 @@
     "preview": "vite preview",
     "lint": "tsc -p tsconfig.json --noEmit",
     "package:win": "npm run build && electron-builder --win --publish never",
+    "package:win:msix": "npm run build && electron-builder --win appx --publish never",
     "package:linux": "npm run build && electron-builder --linux --publish never",
     "package:all": "npm run build && electron-builder --win --linux --publish never",
     "publish:github": "npm run build && electron-builder --win --linux --publish always",
@@ -69,7 +70,7 @@
   "build": {
     "appId": "com.kanishka.dummyforge",
     "productName": "Dummy Forge",
-    "copyright": "Copyright © 2024 Kanishka Gayan",
+    "copyright": "Copyright © 2024 Kanishka Meddegoda",
     "publish": [
       {
         "provider": "github",
@@ -85,9 +86,20 @@
           "arch": [
             "x64"
           ]
+        },
+        {
+          "target": "appx",
+          "arch": [
+            "x64"
+          ]
         }
       ],
       "icon": "src/icons/icon.png"
+    },
+    "appx": {
+      "identityName": "KanishkaMeddegoda.DummyForge",
+      "publisher": "CN=67960D19-3842-47BB-94EC-8FDE889DF594",
+      "publisherDisplayName": "Kanishka Meddegoda"
     },
     "nsis": {
       "oneClick": false,
@@ -106,8 +118,8 @@
         "AppImage"
       ],
       "category": "Development",
-      "maintainer": "Kanishka Gayan <your.email@example.com>",
-      "vendor": "Kanishka Gayan",
+      "maintainer": "Kanishka Meddegoda <gayanmedde2022@gmail.com>",
+      "vendor": "Kanishka Meddegoda",
       "icon": "src/icons/icon.png",
       "desktop": {
         "entry": {

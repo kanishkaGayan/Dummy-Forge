@@ -25,8 +25,13 @@ class AutoUpdateManager {
   private mainWindow: BrowserWindow | null = null;
   private updateCheckInterval: NodeJS.Timeout | null = null;
   private isCheckingForUpdates = false;
+  private readonly isUpdaterEnabled = !process.windowsStore;
 
   constructor() {
+    if (!this.isUpdaterEnabled) {
+      return;
+    }
+
     if (app.isReady()) {
       this.configureAutoUpdater();
     } else {
@@ -190,7 +195,19 @@ class AutoUpdateManager {
     this.mainWindow = window;
   }
 
+  isEnabled() {
+    return this.isUpdaterEnabled;
+  }
+
   checkForUpdates() {
+    if (!this.isUpdaterEnabled) {
+      log.info('Auto-updater disabled for Microsoft Store distribution');
+      this.sendStatusToWindow('updater-disabled', {
+        reason: 'Managed by Microsoft Store'
+      });
+      return;
+    }
+
     if (this.isCheckingForUpdates) {
       log.info('Update check already in progress, skipping');
       return;
@@ -206,6 +223,10 @@ class AutoUpdateManager {
   }
 
   checkForUpdatesOnStartup() {
+    if (!this.isUpdaterEnabled) {
+      return;
+    }
+
     setTimeout(() => {
       log.info('Automatic update check on startup (privacy-respecting)');
       autoUpdater.checkForUpdates().catch((err) => {
@@ -215,6 +236,10 @@ class AutoUpdateManager {
   }
 
   startPeriodicUpdateChecks(intervalHours = 6) {
+    if (!this.isUpdaterEnabled) {
+      return;
+    }
+
     const intervalMs = intervalHours * 60 * 60 * 1000;
 
     this.updateCheckInterval = setInterval(() => {

@@ -41,7 +41,7 @@ const createWindow = () => {
     mainWindow = null;
   });
 
-  if (app.isPackaged) {
+  if (app.isPackaged && autoUpdateManager.isEnabled()) {
     autoUpdateManager.checkForUpdatesOnStartup();
   }
 
@@ -125,6 +125,10 @@ ipcMain.handle('dummyforge:log', (_event, payload) => {
 });
 
 ipcMain.handle('dummyforge:check-for-updates', () => {
+  if (!autoUpdateManager.isEnabled()) {
+    return { success: false, reason: 'Updates are managed by Microsoft Store for this build.' };
+  }
+
   autoUpdateManager.checkForUpdates();
   return { success: true };
 });
