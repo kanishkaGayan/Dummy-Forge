@@ -54,7 +54,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onClose }) => {
           </p>
           <div className="grid gap-6 md:grid-cols-3">
             <div className="rounded-md border border-blue-200 bg-blue-50 p-4 dark:border-blue-900/60 dark:bg-blue-950/30">
-              <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-300">Release 1.1.12</h3>
+              <h3 className="mb-2 font-semibold text-blue-900 dark:text-blue-300">Release 1.1.13</h3>
               <p className="text-sm text-blue-800 dark:text-blue-200">
                 Query Studio improvements, better diagnostics/autocomplete, refined theme readability, and country dial-code generation fixes.
               </p>
