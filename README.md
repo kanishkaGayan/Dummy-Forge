@@ -37,10 +37,11 @@ Dummy Forge is a powerful desktop application for generating realistic, customiz
 - Export formats: CSV, SQL, TXT, PDF
 
 ## Screenshots
-![Dummy Forge Screenshot 1](screenshots/1.png)
-![Dummy Forge Screenshot 2](screenshots/2.png)
-![Dummy Forge Screenshot 3](screenshots/3.png)
-![Dummy Forge Screenshot 4](screenshots/4.png)
+![Dummy Forge Screenshot 1](screenshots/dummy-forge-1.png)
+![Dummy Forge Screenshot 2](screenshots/dummy-forge-2.png)
+![Dummy Forge Screenshot 3](screenshots/dummy-forge-3.png)
+![Dummy Forge Screenshot 4](screenshots/dummy-forge-4.png)
+![Dummy Forge Screenshot 4](screenshots/dummy-forge-5.png)
 
 ## Tech Stack
 
