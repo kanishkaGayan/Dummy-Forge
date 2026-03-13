@@ -1,7 +1,7 @@
 # Dummy Forge
 
 ![License](https://img.shields.io/badge/License-All%20Rights%20Reserved-red)
-![Version](https://img.shields.io/badge/Version-1.1.13-blue)
+![Version](https://img.shields.io/badge/Version-1.1.14-blue)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux-brightgreen)
 ![Node](https://img.shields.io/badge/Node-20%2B-green)
 
@@ -131,6 +131,35 @@ npm run package:all
 ```
 
 Output artifacts are generated in the `release/` directory.
+
+### GitHub Actions: Windows release
+
+The workflow `.github/workflows/release-windows.yml` builds the Windows installer and creates a GitHub Release when you push a version tag (`v*`).
+
+Release flow:
+
+```bash
+git add .
+git commit -m "release: v1.1.14"
+git push origin main
+git tag v1.1.14
+git push origin v1.1.14
+```
+
+This uploads Windows artifacts (`.exe`, `.blockmap`, `latest.yml`) to the GitHub release.
+
+### Microsoft Store branding assets
+
+Windows Store tile and logo assets are kept in `build/appx/`.
+The current branded source artwork and base icon live in:
+
+- `src/icons/dummy-forge-tile.svg`
+- `src/icons/dummy-forge-wide-tile.svg`
+- `src/icons/icon.png`
+
+All platform icon derivatives in `build/appx/`, `src/icons/web/`, and `src/icons/android/` are expected to be synchronized with `src/icons/icon.png` before packaging.
+
+Certification remediation notes for the Microsoft Store submission are documented in `docs/microsoft-store-resubmission.md`.
 
 ### Lint & Code Quality
 
