@@ -7,6 +7,13 @@
 
 Dummy Forge is a powerful desktop application for generating realistic, customizable dummy data for educational and development use. Configure fields, demographics, locations, generate up to 10,000 records, and export to multiple formats. Includes an integrated SQL Query Studio for practice and learning.
 
+## Microsoft Store availability
+
+Dummy Forge is currently **not listed** on Microsoft Store.
+
+- Store URL (currently unavailable listing): https://apps.microsoft.com/detail/9p8tzt0650h6?ocid=webpdpshare
+- Use GitHub Releases for downloadable installers/packages until the Store listing is republished.
+
 ## Release 1.1.13 Highlights
 - Added Query Studio with an in-app SQL practice console
 - Improved SQL diagnostics and autocomplete suggestions
@@ -132,9 +139,13 @@ npm run package:all
 
 Output artifacts are generated in the `release/` directory.
 
-### GitHub Actions: Windows release
+### GitHub Actions: release automation
 
-The workflow `.github/workflows/release-windows.yml` builds the Windows installer and creates a GitHub Release when you push a version tag (`v*`).
+The following workflows run when you push a version tag (`v*`):
+
+- `.github/workflows/release-windows.yml` → Windows installer assets (`.exe`, `.blockmap`, `latest.yml`)
+- `.github/workflows/release-store-package.yml` → Store package assets (`.appx/.appxbundle/.msix/.msixbundle`)
+- `.github/workflows/release-linux.yml` → Linux assets (`.AppImage`, `.deb`, `.snap`, `latest-linux.yml`)
 
 Release flow:
 
@@ -146,7 +157,9 @@ git tag v1.1.14
 git push origin v1.1.14
 ```
 
-This uploads Windows artifacts (`.exe`, `.blockmap`, `latest.yml`) to the GitHub release.
+This uploads release artifacts to a single GitHub release for the same tag.
+
+If Linux assets are missing for a previous tag (for example `v1.1.14`), publish a new patch tag (for example `v1.1.15`) after this workflow update so Linux artifacts are generated and attached automatically.
 
 ### Microsoft Store branding assets
 
