@@ -1,5 +1,5 @@
 import React from 'react';
-const appIcon = '/icon.png';
+const appIcon = `${import.meta.env.BASE_URL}icon.png`;
 
 interface AboutPageProps {
   onClose: () => void;
