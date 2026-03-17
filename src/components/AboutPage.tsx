@@ -1,5 +1,5 @@
 import React from 'react';
-import appIcon from '../icons/icon.png';
+import appIcon from '../icons/icon.svg';
 
 interface AboutPageProps {
   onClose: () => void;

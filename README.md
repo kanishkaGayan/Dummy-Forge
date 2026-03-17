@@ -127,6 +127,11 @@ Build Linux distributables (`AppImage`, `snap`, `deb`):
 npm run package:linux
 ```
 
+Build and publish Linux distributables directly to GitHub Releases (CI/tag flow):
+```bash
+npm run package:linux:release
+```
+
 Build Windows distributable (`.exe` via NSIS):
 ```bash
 npm run package:win
@@ -145,7 +150,12 @@ The following workflows run when you push a version tag (`v*`):
 
 - `.github/workflows/release-windows.yml` → Windows installer assets (`.exe`, `.blockmap`, `latest.yml`)
 - `.github/workflows/release-store-package.yml` → Store package assets (`.appx/.appxbundle/.msix/.msixbundle`)
-- `.github/workflows/release-linux.yml` → Linux assets (`.AppImage`, `.deb`, `.snap`, `latest-linux.yml`)
+- `.github/workflows/release-linux.yml` → Linux assets (`.AppImage`, `.deb`, `.snap`, `latest-linux.yml`) published by Electron Builder using `GH_TOKEN`
+
+Method split:
+
+- Local machine: `npm run package:linux` (build-only, no publishing)
+- GitHub Actions (tag build): `npm run package:linux:release` (build + upload to GitHub Release)
 
 Release flow:
 
@@ -168,9 +178,9 @@ The current branded source artwork and base icon live in:
 
 - `src/icons/dummy-forge-tile.svg`
 - `src/icons/dummy-forge-wide-tile.svg`
-- `src/icons/icon.png`
+- `public/icon.png`
 
-All platform icon derivatives in `build/appx/`, `src/icons/web/`, and `src/icons/android/` are expected to be synchronized with `src/icons/icon.png` before packaging.
+Web app icon assets are served from `public/` and Windows Store package assets are kept in `build/appx/`.
 
 Certification remediation notes for the Microsoft Store submission are documented in `docs/microsoft-store-resubmission.md`.
 

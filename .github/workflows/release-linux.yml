@@ -26,15 +26,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build Linux packages (AppImage, deb, snap)
-        run: npm run package:linux
-
-      - name: Create GitHub release and upload Linux artifacts
-        uses: softprops/action-gh-release@v2
+      - name: Delete older GitHub releases
+        uses: dev-drprasad/delete-older-releases@v0.3.4
         with:
-          generate_release_notes: true
-          files: |
-            release/**/*.AppImage
-            release/**/*.deb
-            release/**/*.snap
-            release/latest-linux.yml
+          keep_latest: 3
+          delete_tags: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish Linux packages to GitHub Release
+        run: npm run package:linux:release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

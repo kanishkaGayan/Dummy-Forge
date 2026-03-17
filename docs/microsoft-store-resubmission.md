@@ -33,19 +33,11 @@ This avoids generic placeholder imagery and keeps the icon recognizable at small
 - [build/appx/icon.png](../build/appx/icon.png)
 
 ## Additional branding updates
-- [src/icons/icon.png](../src/icons/icon.png)
-- [src/icons/web/icon-192.png](../src/icons/web/icon-192.png)
-- [src/icons/web/icon-192-maskable.png](../src/icons/web/icon-192-maskable.png)
-- [src/icons/web/icon-512.png](../src/icons/web/icon-512.png)
-- [src/icons/web/icon-512-maskable.png](../src/icons/web/icon-512-maskable.png)
-- [src/icons/web/apple-touch-icon.png](../src/icons/web/apple-touch-icon.png)
-- [src/icons/web/favicon-16x16.png](../src/icons/web/favicon-16x16.png)
-- [src/icons/web/favicon-32x32.png](../src/icons/web/favicon-32x32.png)
-- [src/icons/web/favicon.ico](../src/icons/web/favicon.ico)
-- [src/icons/android/play_store_512.png](../src/icons/android/play_store_512.png)
-- [src/icons/android/favicon-16x16.png](../src/icons/android/favicon-16x16.png)
-- [src/icons/android/favicon-32x32.png](../src/icons/android/favicon-32x32.png)
-- [src/icons/android/favicon.ico](../src/icons/android/favicon.ico)
+- [public/icon.png](../public/icon.png)
+- [public/apple-touch-icon.png](../public/apple-touch-icon.png)
+- [public/favicon-16x16.png](../public/favicon-16x16.png)
+- [public/favicon-32x32.png](../public/favicon-32x32.png)
+- [public/favicon.ico](../public/favicon.ico)
 
 ## Validation checklist
 - Verified square tile assets exist at 44, 50, 71, 150, and 310 pixels
@@ -53,7 +45,7 @@ This avoids generic placeholder imagery and keeps the icon recognizable at small
 - Preserved PNG format for Store submission assets
 - Kept branding consistent with the in-app icon shown in the React UI
 - Chose high-contrast colors for readability on Microsoft Surface-class displays
-- Re-generated all app icon derivatives from the current primary icon (`src/icons/icon.png`)
+- Re-generated all app icon derivatives from the current primary icon (`public/icon.png`)
 - Completed file existence and exact-size validation across all required icon outputs (`CHECK_RESULT PASS`)
 
 ## Resubmission message draft
