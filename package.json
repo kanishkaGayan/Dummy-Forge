@@ -95,7 +95,7 @@
           ]
         }
       ],
-      "icon": "src/icons/icon.svg"
+      "icon": "public/icon.png"
     },
     "appx": {
       "identityName": "KanishkaMeddegoda.DummyForge",
@@ -121,7 +121,7 @@
       "category": "Development",
       "maintainer": "Kanishka Meddegoda <gayanmedde2022@gmail.com>",
       "vendor": "Kanishka Meddegoda",
-      "icon": "src/icons/icon.svg",
+      "icon": "public/icon.png",
       "desktop": {
         "entry": {
           "Name": "Dummy Forge",

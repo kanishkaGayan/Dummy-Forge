@@ -20,7 +20,7 @@ import UpdateNotification from './components/UpdateNotification';
 import { Database, Moon, Sun, TerminalSquare } from 'lucide-react';
 import { ExportSelection } from './types/exports';
 import { DemographicsConfig, FieldConfig, GenerationConfig, LocationConfig } from './types/schema';
-import appIcon from './icons/icon.svg';
+const appIcon = '/icon.png';
 import { createError, DummyForgeError } from './lib/errors/ErrorCodes';
 
 type TabType = 'generator' | 'query';
